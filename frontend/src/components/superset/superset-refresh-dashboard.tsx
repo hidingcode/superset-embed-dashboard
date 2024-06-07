@@ -11,6 +11,7 @@ type SupersetDashboardProps = {
 
 const supersetDomain = "http://127.0.0.1:8088";
 const backendEndpoint = "http://127.0.0.1:5000/api/guest_token";
+const refreshIntervalDuration = 20000; // 20 seconds    
 
 function fetchGuestTokenFromBackend(): Promise<string> {
     return new Promise<string>((resolve) => {
@@ -20,14 +21,26 @@ function fetchGuestTokenFromBackend(): Promise<string> {
     })
 }
 
-export class SupersetDashboard extends Component<SupersetDashboardProps> {
+export class SupersetRefreshDashboard extends Component<SupersetDashboardProps> {
     state = {
         isLoaded: false
     }
 
+    private refreshInterval: NodeJS.Timeout | null = null;
+
     componentDidMount() {
-        this.setState({ isLoaded: true });
-        
+
+        this.loadDashboard();
+        this.refreshInterval = setInterval(this.loadDashboard, refreshIntervalDuration);
+    }
+
+    componentWillUnmount() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
+    }
+
+    loadDashboard = () => {
         embedDashboard({
             id: this.props.id, // given by the Superset embedding UI
             supersetDomain: supersetDomain,
