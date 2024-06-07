@@ -1,0 +1,10 @@
+#superset-dashboard{
+    min-height: 75vh;
+    min-width: 80%;
+}
+
+#superset-dashboard>iframe {
+    width: 1400px;
+    height: 800px;
+    border: 0;
+}
