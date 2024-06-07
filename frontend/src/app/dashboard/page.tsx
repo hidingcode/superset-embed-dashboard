@@ -33,7 +33,7 @@ export default function Page(): React.JSX.Element {
           src="http://127.0.0.1:8088/superset/explore/p/EOb0qYE01Le/?standalone=1&height=400"
         >
         </iframe> */}
-        <SupersetDashboard />
+        <SupersetDashboard id="c0e94d84-82e6-4e8b-ba23-3e54987094cd"/>
       </Grid>
       {/* <Grid lg={3} sm={6} xs={12}>
         <TotalCustomers diff={16} trend="down" sx={{ height: '100%' }} value="1.6k" />

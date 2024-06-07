@@ -5,25 +5,45 @@ import { embedDashboard } from "@superset-ui/embedded-sdk";
 import axios from "axios";
 import "./superset-dashboard.css";
 
+type SupersetDashboardProps = {
+    id: string; // The id provided by the embed configuration UI in Superset
+};
+
+const supersetDomain = "http://127.0.0.1:8088";
+const backendEndpoint = "http://127.0.0.1:5000/api/guest_token";
+const refreshIntervalDuration = 60000; // 1 minute
+
 function fetchGuestTokenFromBackend(): Promise<string> {
     return new Promise<string>((resolve) => {
-        axios.get("http://127.0.0.1:5000/api/guest_token").then((response) => {
+        axios.get(backendEndpoint).then((response) => {
             resolve(response.data.token);
         }); 
     })
 }
 
-export class SupersetDashboard extends Component {
+export class SupersetDashboard extends Component<SupersetDashboardProps> {
     state = {
         isLoaded: false
     }
 
+    private refreshInterval: NodeJS.Timeout | null = null;
+
     componentDidMount() {
-        this.setState({ isLoaded: true });
-        
+
+        this.loadDashboard();
+        this.refreshInterval = setInterval(this.loadDashboard, refreshIntervalDuration);
+    }
+
+    componentWillUnmount() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+        }
+    }
+
+    loadDashboard = () => {
         embedDashboard({
-            id: "c0e94d84-82e6-4e8b-ba23-3e54987094cd", // given by the Superset embedding UI
-            supersetDomain: "http://127.0.0.1:8088",
+            id: this.props.id, // given by the Superset embedding UI
+            supersetDomain: supersetDomain,
             mountPoint: document.getElementById("superset-dashboard")!, // any html element that can contain an iframe
             fetchGuestToken: () => fetchGuestTokenFromBackend(),
             dashboardUiConfig: {
